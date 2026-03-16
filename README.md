@@ -12,3 +12,7 @@ Data
 
 Goal
 	We want to determine if training a model on 75% of image embedding–voxel response pairs will allow us to predict the neural patterns of the remaining 25% of categories on which our model will not be trained.
+
+Methodology
+	We will use regression to predict voxel activation patterns associated with sets of novel images after training our model on pairs of semantic embeddings and their neural representations. We plan to start with ridge and lasso regression models, which will hopefully be able to perform decently at predicting out high-dimensional output. Several specific techniques we will try for ridge and lasso will be: making predictions both within and across the 3 subjects, making predictions for the full voxel output AND for individual voxels one by one, training using scans from the 12 individual images, AND a training approach that averages within concepts for each participant. For both lasso and ridge, we plan to test a set of standard values for our regularization parameter.
+	After exhausting our regression approaches, we will move onto more powerful methods such as XGBoost and some ensemble learning methods. If we are still unable to predict the voxel responses meaningfully, we will also include a deep learning approach for comparison purposes.
