@@ -1,18 +1,30 @@
 # 441project
 
-Summary
-Our goal is to determine if we can predict the voxel patterns of new images after training our model on 75% of image embedding–neural response pairs
+ --- Summary
+Our goal is to determine if we can predict the voxel patterns ascociated with viewing novel images after training our model on 75% of image embedding–voxel response pairs.
 
-Background
-	Our data was collected from 3 participants viewing a series of 12 images within the same image concept (meaning 36 trials per concept across all participants). A total of 720 unique concepts were shown, usually with 12 images each, although some have 24.
+ --- Required packages
+os, subprocess, pathlib, shutil, h5py, numpy, pandas, scipy.sparse, sklearn.metrics.pairwise, PIL, torch, tqdm, transformers, sklearn.linear_model, sklearn.decomposition, sklearn.cross_decomposition, sklearn.metrics, xgboost.
 
-Data
-	Our X matrix is the semantic embeddings that represent the concepts of the images that participants viewed during the fMIR. We used CLIP embeddings, as they are trained on word-image pairs, which should generalize well to our dataset. Each concept (e.g., dog, house, candle, tree) was converted into 512 row feature vector.
-	Our Y matrix is the voxel patterns measured in response to viewing the images. The regions these voxels are recorded from are ICA-betas derivatives; rather than the full-brain fMRI, we are focusing on select voxels in the visual cortex and nearby object-selective regions. Each voxel representation is a 9840 row vector, covering the most relevant regions that would be affected by viewing an image.
+ --- Background:
+The THINGS-fMRI dataset is part of the broader THINGS initiative, which investigates how the human brain represents visual objects and their associated semantic concepts. In this study, three participants viewed thousands of natural images spanning 720 distinct object concepts (represented by approximately 12 images each) during fMRI imaging.
 
-Goal
-	We want to determine if training a model on 75% of image embedding–voxel response pairs will allow us to predict the neural patterns of the remaining 25% of categories on which our model will not be trained.
+Functional MRI (fMRI) measures neural activity indirectly using the blood oxygen level-dependent signal, which reflects changes in blood oxygenation associated with neural activity. fMRI divides the brain into 2-3mm cubic pixels called voxels, each representing the aggregated activity of many thousands of neurons.
 
-Methodology
-	We will use regression to predict voxel activation patterns associated with sets of novel images after training our model on pairs of semantic embeddings and their neural representations. We plan to start with ridge and lasso regression models, which will hopefully be able to perform decently at predicting out high-dimensional output. Several specific techniques we will try for ridge and lasso will be: making predictions both within and across the 3 subjects, making predictions for the full voxel output AND for individual voxels one by one, training using scans from the 12 individual images, AND a training approach that averages within concepts for each participant. For both lasso and ridge, we plan to test a set of standard values for our regularization parameter.
-	After exhausting our regression approaches, we will move onto more powerful methods such as XGBoost and some ensemble learning methods. If we are still unable to predict the voxel responses meaningfully, we will also include a deep learning approach for comparison purposes.
+CLIP embeddings are used to model visual representations. CLIP is a neural network that maps images into a shared high-dimensional feature space. These embeddings capture semantic and visual similarity, making them well-suited for linking image content to brain activity.
+
+
+ --- Data:
+Input data X consists of image embeddings computed for each stimulus presented in the experiment. The images were obtained from the THINGS dataset and aligned with the fMRI recordings using their unique stimulus identifiers.
+
+Output variable Y consists of neural response patterns derived from fMRI data. Rather than working with raw time-series signals, we use precomputed ICA-based beta estimates, which represent the estimated neural response to each individual stimulus after accounting for noise sources such as head motion and physiological artifacts.
+
+For each image, we compute a 512-dimensional embedding using CLIP. These embeddings are then L2-normalized to unit length, ensuring consistent scaling and making similarity comparisons more meaningful. We aggregate repeated presentations of the same image by averaging their corresponding beta responses, resulting in an image-level dataset with 8003 samples (one per unique image) and approximately 200,000 voxel features per subject.
+
+To focus on stimulus-relevant brain activity, we restrict our analysis to voxels within visually responsive regions of the cortex (e.g., early visual areas and higher-level ventral stream regions), as identified through the provided voxel metadata. These regions are expected to exhibit the strongest variation as a function of visual stimulus content, so we isolated them using Partial Least Squares (PLS) supervised dimensionality reduction.
+
+We first applied z-score normalization for each voxel to standardize the response scale. We then apply Principal Component Analysis (PCA) to reduce the dimensionality of the neural data to 200 dimensions, retaining the components that explain the majority of variance. Lastly, we conduct PLS on this reduced data to represent the 20/50 features with the greatest dependency on our X data.
+
+ --- Directions to run
+
+
